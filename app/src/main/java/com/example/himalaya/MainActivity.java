@@ -1,82 +1,64 @@
 package com.example.himalaya;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
-import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
-import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack;
-import com.ximalaya.ting.android.opensdk.model.category.Category;
-import com.ximalaya.ting.android.opensdk.model.category.CategoryList;
+import com.example.himalaya.adapters.IndicatorAdapter;
+import com.example.himalaya.adapters.MainContentAdapter;
+import com.example.himalaya.utils.LogUtil;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.lucode.hackware.magicindicator.MagicIndicator;
+import net.lucode.hackware.magicindicator.ViewPagerHelper;
+import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private MagicIndicator mMagicIndicator;
+    private ViewPager mContentPager;
+    private IndicatorAdapter mIndicatorAdapter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        int internet = checkSelfPermission(Manifest.permission.INTERNET);
-        if (internet != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.INTERNET}, 1);
-        } else {
-            Map<String, String> map = new HashMap<>();
-            CommonRequest.getCategories(map, new IDataCallBack<CategoryList>() {
-                @Override
-                public void onSuccess(CategoryList categoryList) {
-                    List<Category> categories = categoryList.getCategories();
-                    int size = categories.size();
-                    for (int i = 0; i < categories.size(); i++) {
-                        String categoryName = categories.get(i).getCategoryName();
-                        String coverUrlLarge = categories.get(i).getCoverUrlLarge();
-                        String coverUrlMiddle = categories.get(i).getCoverUrlMiddle();
-                        String coverUrlSmall = categories.get(i).getCoverUrlSmall();
-                        long id = categories.get(i).getId();
-                        String kind = categories.get(i).getKind();
-                        Log.d(TAG, "size --> " + size);
-                        Log.d(TAG, "categoryName --> " + categoryName);
-                        Log.d(TAG, "coverUrlLarge --> " + coverUrlLarge);
-                        Log.d(TAG, "coverUrlMiddle --> " + coverUrlMiddle);
-                        Log.d(TAG, "coverUrlSmall --> " + coverUrlSmall);
-                        Log.d(TAG, "id --> " + id);
-                        Log.d(TAG, "kind --> " + kind);
-                    }
-                }
-
-                @Override
-                public void onError(int i, String s) {
-                    Log.d(TAG, "error code -- " + i + "  :  " + s);
-                }
-            });
-        }
-
-
+        LogUtil.init(this.getPackageName(), true);//初始化,输入包名确定是这个包的Log,true就不显示Log
+        initView();
+        initEvent();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "有权限");
-                } else {
-                    Log.d(TAG, "拒绝权限");
-                }
-                break;
-        }
+    private void initEvent() {
+        mIndicatorAdapter.setOnIndicatorTabClickListener(new IndicatorAdapter.OnIndicatorTabClickListener() {
+            @Override
+            public void onTabClick(int position) {
+                mContentPager.setCurrentItem(position);
+            }
+        });
+    }
+
+    private void initView() {
+        mMagicIndicator = findViewById(R.id.main_indicator);
+        mMagicIndicator.setBackgroundColor(getResources().getColor(R.color.main_color));
+        //创建indicator适配器
+        mIndicatorAdapter = new IndicatorAdapter(MainActivity.this);
+        CommonNavigator commonNavigator = new CommonNavigator(MainActivity.this);
+        commonNavigator.setAdjustMode(true);//平分布局
+        commonNavigator.setAdapter(mIndicatorAdapter);
+        //设置要显示的内容
+
+        //Viewpager
+        mContentPager = findViewById(R.id.content_pager);
+        //创建内容适配器
+        MainContentAdapter mainContentAdapter = new MainContentAdapter(getSupportFragmentManager());
+        mContentPager.setAdapter(mainContentAdapter);
+        //绑定导航栏很viewpager
+        mMagicIndicator.setNavigator(commonNavigator);
+        ViewPagerHelper.bind(mMagicIndicator, mContentPager);
     }
 }
