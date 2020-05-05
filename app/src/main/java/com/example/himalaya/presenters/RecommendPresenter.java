@@ -53,15 +53,7 @@ public class RecommendPresenter implements IRecommendRresenter {
         getRecommend();
     }
 
-    @Override
-    public void pull2RefreshMode() {
 
-    }
-
-    @Override
-    public void loadMore() {
-
-    }
 
     @Override
     //通过IRecommendViewCallback去更新UI
@@ -82,6 +74,7 @@ public class RecommendPresenter implements IRecommendRresenter {
     //获取推荐内容,猜你喜欢
     private void getRecommend() {
         //封装参数
+        updateLoading();
         Map<String, String> map = new HashMap<>();
         //表示一页数据返回多少条
         map.put(DTransferConstants.LIKE_COUNT, String.valueOf(Constans.RECOMMAND_COUNT));
@@ -98,17 +91,42 @@ public class RecommendPresenter implements IRecommendRresenter {
 
             @Override
             public void onError(int i, String s) {
-                Log.d(TAG, "i " + i + "error message -- " + s);
+                Log.d(TAG, "error " + i + "error message -- " + s);
+                handlerError();
             }
         });
     }
 
-    private void handlerRecommendResult(List<Album> albumList) {
+    private void handlerError() {
         if (mCallbacks != null) {
-            //mCallbacks在RecommendFragment注册接口是添加到了mCallbacks集合
             for (IRecommendViewCallback callback : mCallbacks) {
-                callback.onRecommendListLoaded(albumList);//传值
+                callback.onNetWorkError();
             }
+        }
+    }
+
+    private void handlerRecommendResult(List<Album> albumList) {
+        if (albumList != null) {
+            if (albumList.size() == 0) {
+                if (mCallbacks != null) {
+                    for (IRecommendViewCallback callback : mCallbacks) {
+                        callback.onEmpty();
+                    }
+                }
+            } else {
+                //mCallbacks在RecommendFragment注册接口是添加到了mCallbacks集合
+                for (IRecommendViewCallback callback : mCallbacks) {
+                    //类似于接口传值，调用set方法
+                    callback.onRecommendListLoaded(albumList);//传值
+                }
+            }
+        }
+    }
+
+    //发起请求后调用显示正在加载
+    private void updateLoading() {
+        for (IRecommendViewCallback callback : mCallbacks) {
+            callback.onLoading();
         }
     }
 }
