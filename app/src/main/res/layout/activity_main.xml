@@ -20,7 +20,7 @@
             android:layout_height="15dp"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:src="@mipmap/search" />
+            android:src="@mipmap/search_icon" />
     </LinearLayout>
 
     <androidx.viewpager.widget.ViewPager
@@ -29,4 +29,6 @@
         android:layout_height="match_parent"
         android:layout_below="@id/linear"
         android:overScrollMode="never" />
+
+
 </RelativeLayout>

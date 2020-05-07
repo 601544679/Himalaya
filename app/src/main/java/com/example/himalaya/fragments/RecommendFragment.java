@@ -1,5 +1,6 @@
 package com.example.himalaya.fragments;
 
+import android.content.Intent;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,10 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.himalaya.DetailActivity;
 import com.example.himalaya.R;
 import com.example.himalaya.adapters.RecommendListAdapter;
 import com.example.himalaya.base.BaseFragment;
 import com.example.himalaya.interfaces.IRecommendViewCallback;
+import com.example.himalaya.presenters.AlbumDetailPresenter;
 import com.example.himalaya.presenters.RecommendPresenter;
 import com.example.himalaya.views.UILoader;
 import com.ximalaya.ting.android.opensdk.model.album.Album;
@@ -81,6 +84,19 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
                 outRect.bottom = UIUtil.dip2px(view.getContext(), 5);
                 outRect.left = UIUtil.dip2px(view.getContext(), 5);
                 outRect.right = UIUtil.dip2px(view.getContext(), 5);
+            }
+        });
+        mRecommendListAdapter.setonRecommendItemClickListener(new RecommendListAdapter.onRecommendItemClickListener() {
+            @Override
+            public void onItemClick(int position, Album album) {
+                AlbumDetailPresenter.getInstance().setTargetAlbum(album);
+                //设置数据，然后registerViewCallback里用 detailViewCallback.onAlbumLoader(mTargetAlbum);传递这个数据
+                //在DetailActivity实现DetailViewCallBack接口，实现onAlbumLoader方法，获取到数据，并更新UI
+                Intent intent = new Intent(getContext(), DetailActivity.class);
+                intent.putExtra("position", position);
+
+                startActivity(intent);
+
             }
         });
         mRecommendRv.setAdapter(mRecommendListAdapter);

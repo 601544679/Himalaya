@@ -1,9 +1,8 @@
 package com.example.himalaya.presenters;
 
-import android.os.Message;
 import android.util.Log;
 
-import com.example.himalaya.interfaces.IRecommendRresenter;
+import com.example.himalaya.interfaces.IRecommendPresenter;
 import com.example.himalaya.interfaces.IRecommendViewCallback;
 import com.example.himalaya.utils.Constans;
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
@@ -17,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RecommendPresenter implements IRecommendRresenter {
+public class RecommendPresenter implements IRecommendPresenter {
     private List<IRecommendViewCallback> mCallbacks = new ArrayList<>();
     private static final String TAG = "RecommendPresenter";
 
@@ -29,7 +28,7 @@ public class RecommendPresenter implements IRecommendRresenter {
     private RecommendPresenter() {
     }
 
-    private static RecommendPresenter sImstance = null;
+    private static RecommendPresenter sInstance = null;
 
     /**
      * 获取单例对象,下面是懒汉式写法
@@ -37,14 +36,14 @@ public class RecommendPresenter implements IRecommendRresenter {
      * @return
      */
     public static RecommendPresenter getInstance() {
-        if (sImstance == null) {
+        if (sInstance == null) {
             synchronized (RecommendPresenter.class) {
-                if (sImstance == null) {
-                    sImstance = new RecommendPresenter();
+                if (sInstance == null) {
+                    sInstance = new RecommendPresenter();
                 }
             }
         }
-        return sImstance;
+        return sInstance;
     }
 
     @Override
@@ -52,7 +51,6 @@ public class RecommendPresenter implements IRecommendRresenter {
         //获取推荐内容
         getRecommend();
     }
-
 
 
     @Override
@@ -77,7 +75,7 @@ public class RecommendPresenter implements IRecommendRresenter {
         updateLoading();
         Map<String, String> map = new HashMap<>();
         //表示一页数据返回多少条
-        map.put(DTransferConstants.LIKE_COUNT, String.valueOf(Constans.RECOMMAND_COUNT));
+        map.put(DTransferConstants.LIKE_COUNT, String.valueOf(Constans.COUNT_RECOMMEND));
         CommonRequest.getGuessLikeAlbum(map, new IDataCallBack<GussLikeAlbumList>() {
             @Override
             public void onSuccess(GussLikeAlbumList gussLikeAlbumList) {
@@ -107,6 +105,8 @@ public class RecommendPresenter implements IRecommendRresenter {
 
     private void handlerRecommendResult(List<Album> albumList) {
         if (albumList != null) {
+            //测试内容为空
+           //albumList.clear();
             if (albumList.size() == 0) {
                 if (mCallbacks != null) {
                     for (IRecommendViewCallback callback : mCallbacks) {

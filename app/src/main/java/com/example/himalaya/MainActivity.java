@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import com.example.himalaya.adapters.IndicatorAdapter;
 import com.example.himalaya.adapters.MainContentAdapter;
+import com.example.himalaya.base.BaseActivity;
 import com.example.himalaya.utils.LogUtil;
 
 import net.lucode.hackware.magicindicator.MagicIndicator;
@@ -16,7 +17,7 @@ import net.lucode.hackware.magicindicator.ViewPagerHelper;
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
     private MagicIndicator mMagicIndicator;
