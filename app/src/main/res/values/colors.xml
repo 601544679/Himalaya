@@ -3,7 +3,12 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
-    <color name="main_color">#FA7254</color>
+    <color name="main_color">#ee4100</color>
+    <color name="second_color">#FA7254</color>
     <color name="white">#ffffff</color>
     <color name="sub_text_title">#979797</color>
+    <color name="sub_text_title99">#99979797</color>
+    <color name="play_list_line_color">#eceef0</color>
+    <color name="black">#000000</color>
+    <color name="play_list_text_color">#7d828c</color>
 </resources>

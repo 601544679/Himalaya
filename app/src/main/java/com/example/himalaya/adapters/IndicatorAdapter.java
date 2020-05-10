@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.view.View;
 
 import com.example.himalaya.R;
+import com.example.himalaya.utils.LogUtil;
 
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.abs.CommonNavigatorAdapter;
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.abs.IPagerIndicator;
@@ -14,17 +15,20 @@ import net.lucode.hackware.magicindicator.buildins.commonnavigator.titles.ColorT
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.titles.SimplePagerTitleView;
 
 public class IndicatorAdapter extends CommonNavigatorAdapter {
+    private static final String TAG = "IndicatorAdapter";
     private final Context mContext;
     private final String[] mTitles;
     private OnIndicatorTabClickListener mOnIndicatorTabClickListener = null;
 
     public IndicatorAdapter(Context context) {
+        LogUtil.d(TAG, "IndicatorAdapter");
         mTitles = context.getResources().getStringArray(R.array.indicator_title);
         this.mContext = context;
     }
 
     @Override
     public int getCount() {
+        LogUtil.d(TAG, "getCount");
         if (mTitles != null) {
             return mTitles.length;
         }
@@ -33,6 +37,7 @@ public class IndicatorAdapter extends CommonNavigatorAdapter {
 
     @Override
     public IPagerTitleView getTitleView(Context context, final int index) {
+        LogUtil.d(TAG, "getTitleView");
         //创建View
         ColorTransitionPagerTitleView colorTransitionPagerTitleView = new ColorTransitionPagerTitleView(context);
         colorTransitionPagerTitleView.setTextSize(20);
@@ -55,6 +60,7 @@ public class IndicatorAdapter extends CommonNavigatorAdapter {
 
     @Override
     public IPagerIndicator getIndicator(Context context) {
+        LogUtil.d(TAG, "getIndicator");
         LinePagerIndicator linePagerIndicator = new LinePagerIndicator(context);
         linePagerIndicator.setMode(LinePagerIndicator.MODE_WRAP_CONTENT);
         linePagerIndicator.setColors(Color.WHITE);
@@ -62,6 +68,7 @@ public class IndicatorAdapter extends CommonNavigatorAdapter {
     }
 
     public void setOnIndicatorTabClickListener(OnIndicatorTabClickListener listener) {
+        LogUtil.d(TAG, "setOnIndicatorTabClickListener");
         this.mOnIndicatorTabClickListener = listener;
     }
 

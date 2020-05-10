@@ -3,6 +3,7 @@ package com.example.himalaya.utils;
 import android.util.Log;
 
 public class LogUtil {
+
     public static String sTAG = "LogUtil";
 
     //控制是否要输出log

@@ -12,14 +12,16 @@ import androidx.annotation.Nullable;
 
 import com.example.himalaya.R;
 import com.example.himalaya.base.BaseApplication;
+import com.example.himalaya.utils.LogUtil;
 
 public abstract class UILoader extends FrameLayout {
 
+    private static final String TAG = "UILoader";
     private View mLoadingView;
     private View mSuccessView;
     private View mNetWorkErrorView;
     private View mEmptyView;
-    private OnRetryClickListener mOnRetryClickListener=null;
+    private OnRetryClickListener mOnRetryClickListener = null;
 
     //枚举有多少状态
     public enum UIStatus {
@@ -39,11 +41,13 @@ public abstract class UILoader extends FrameLayout {
 
     public UILoader(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        LogUtil.d(TAG, "UILoader");
         init();
     }
 
     //通过这个方法传入枚举类型，更新UI
     public void updateStatus(UIStatus status) {
+        LogUtil.d(TAG, "updateStatus");
         mCurrentStatus = status;
         //更新UI一定要在主线程
         BaseApplication.getHandler().post(new Runnable() {
@@ -58,10 +62,12 @@ public abstract class UILoader extends FrameLayout {
      * 初始化UI
      */
     private void init() {
+        LogUtil.d(TAG, "init");
         switchUIByCurrentStatus();
     }
 
     private void switchUIByCurrentStatus() {
+        LogUtil.d(TAG, "switchUIByCurrentStatus");
         //加载中
         if (mLoadingView == null) {
             mLoadingView = getLoadingView();
@@ -97,10 +103,12 @@ public abstract class UILoader extends FrameLayout {
     }
 
     private View getEmptyView() {
+        LogUtil.d(TAG, "getEmptyView");
         return LayoutInflater.from(getContext()).inflate(R.layout.fragment_empty_view, this, false);
     }
 
     private View getNetWorkErrorView() {
+        LogUtil.d(TAG, "getNetWorkErrorView");
         View networkError = LayoutInflater.from(getContext()).inflate(R.layout.fragment_error_view, this, false);
         networkError.findViewById(R.id.network_error_icon).setOnClickListener(new OnClickListener() {
             @Override
@@ -117,10 +125,12 @@ public abstract class UILoader extends FrameLayout {
     protected abstract View getSuccessView(ViewGroup container);
 
     private View getLoadingView() {
+        LogUtil.d(TAG, "getLoadingView");
         return LayoutInflater.from(getContext()).inflate(R.layout.fragment_loading_view, this, false);
     }
 
     public void setOnRetryClickListener(OnRetryClickListener listener) {
+        LogUtil.d(TAG, "setOnRetryClickListener");
         this.mOnRetryClickListener = listener;
     }
 

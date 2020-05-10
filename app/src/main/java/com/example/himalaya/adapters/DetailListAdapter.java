@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.himalaya.R;
+import com.example.himalaya.utils.LogUtil;
 import com.ximalaya.ting.android.opensdk.model.track.Track;
 
 import java.text.SimpleDateFormat;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.InnerHolder> {
+    private static final String TAG = "DetailListAdapter";
     private List<Track> mDetailData = new ArrayList<>();
     //格式化时间long转时间
     private SimpleDateFormat mUpdateDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -25,12 +27,14 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
     @NonNull
     @Override
     public InnerHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LogUtil.d(TAG, "onCreateViewHolder");
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_album_detail, parent, false);
         return new InnerHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull InnerHolder holder, final int position) {
+        LogUtil.d(TAG, "onBindViewHolder");
         //找到控件
         View itemView = holder.itemView;
         TextView orderTv = itemView.findViewById(R.id.order_text);
@@ -60,10 +64,12 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
 
     @Override
     public int getItemCount() {
+        LogUtil.d(TAG, "getItemCount");
         return mDetailData.size();
     }
 
     public void setData(List<Track> tracks) {
+        LogUtil.d(TAG, "setData");
         mDetailData.clear();
         mDetailData.addAll(tracks);
         notifyDataSetChanged();
@@ -71,12 +77,15 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
     }
 
     public class InnerHolder extends RecyclerView.ViewHolder {
+
         public InnerHolder(@NonNull View itemView) {
             super(itemView);
+            LogUtil.d(TAG, "InnerHolder");
         }
     }
 
     public void setItemClickListener(ItemClickListener listener) {
+        LogUtil.d(TAG, "setItemClickListener");
         this.mItemClickListener = listener;
     }
 

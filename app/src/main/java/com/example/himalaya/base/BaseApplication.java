@@ -11,6 +11,7 @@ import com.ximalaya.ting.android.opensdk.player.XmPlayerManager;
 
 
 public class BaseApplication extends Application {
+    private static final String TAG = "BaseApplication";
     private static Handler sHandler = null;
     private static Context sContext = null;
 
@@ -31,16 +32,20 @@ public class BaseApplication extends Application {
         }
         //初始化播放器
         XmPlayerManager.getInstance(BaseApplication.this).init();
-        LogUtil.init(this.getPackageName(), true);
+        LogUtil.init(this.getPackageName(), false);//初始化,输入包名确定是这个包的Log,true就不显示Log
         sHandler = new Handler();
         sContext = getBaseContext();
+        LogUtil.d(TAG, "onCreate");
     }
 
     public static Context getAppContext() {
+        LogUtil.d(TAG, "getAppContext");
         return sContext;
     }
 
+    //线程
     public static Handler getHandler() {
+        LogUtil.d(TAG, "getHandler");
         return sHandler;
     }
 }

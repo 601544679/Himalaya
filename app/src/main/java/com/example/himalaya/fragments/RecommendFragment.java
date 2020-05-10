@@ -2,7 +2,6 @@ package com.example.himalaya.fragments;
 
 import android.content.Intent;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +12,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.himalaya.DetailActivity;
 import com.example.himalaya.R;
-import com.example.himalaya.adapters.RecommendListAdapter;
+import com.example.himalaya.adapters.AlbumListAdapter;
 import com.example.himalaya.base.BaseFragment;
 import com.example.himalaya.interfaces.IRecommendViewCallback;
 import com.example.himalaya.presenters.AlbumDetailPresenter;
 import com.example.himalaya.presenters.RecommendPresenter;
+import com.example.himalaya.utils.LogUtil;
 import com.example.himalaya.views.UILoader;
+import com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout;
 import com.ximalaya.ting.android.opensdk.model.album.Album;
 
 import net.lucode.hackware.magicindicator.buildins.UIUtil;
@@ -32,11 +33,11 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
     private RecyclerView mRecommendRv;
     private RecommendPresenter mRecommendPresenter;
     private UILoader mUiLoader;
-    private RecommendListAdapter mRecommendListAdapter;
+    private AlbumListAdapter mAlbumListAdapter;
 
     @Override
     protected View onSubViewLoaded(final LayoutInflater inflater, final ViewGroup container) {
-        Log.d(TAG, "onSubViewLoaded");
+        LogUtil.d(TAG, "onSubViewLoaded");
         mUiLoader = new UILoader(getContext()) {
             @Override
             protected View getSuccessView(ViewGroup container) {
@@ -71,11 +72,13 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
     }
 
     private View createSuccessView(LayoutInflater inflater, ViewGroup container) {
-        Log.d(TAG, "createSuccessView");
+        LogUtil.d(TAG, "createSuccessView");
         View view = inflater.inflate(R.layout.fragment_recommend, container, false);
         mRecommendRv = view.findViewById(R.id.recommend_list);
+        TwinklingRefreshLayout twinklingRefreshLayout = view.findViewById(R.id.over_scroll_view);
+        twinklingRefreshLayout.setPureScrollModeOn();
         mRecommendRv.setLayoutManager(new LinearLayoutManager(getContext()));
-        mRecommendListAdapter = new RecommendListAdapter();
+        mAlbumListAdapter = new AlbumListAdapter();
         mRecommendRv.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             //设置间距
@@ -86,7 +89,7 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
                 outRect.right = UIUtil.dip2px(view.getContext(), 5);
             }
         });
-        mRecommendListAdapter.setonRecommendItemClickListener(new RecommendListAdapter.onRecommendItemClickListener() {
+        mAlbumListAdapter.setonRecommendItemClickListener(new AlbumListAdapter.onRecommendItemClickListener() {
             @Override
             public void onItemClick(int position, Album album) {
                 AlbumDetailPresenter.getInstance().setTargetAlbum(album);
@@ -99,43 +102,43 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
 
             }
         });
-        mRecommendRv.setAdapter(mRecommendListAdapter);
+        mRecommendRv.setAdapter(mAlbumListAdapter);
         return view;
     }
 
     //IRecommendViewCallback接口回调方法
     @Override
     public void onRecommendListLoaded(List<Album> result) {
-        Log.d(TAG, "onRecommendListLoaded");
+        LogUtil.d(TAG, "onRecommendListLoaded");
         //获取推荐内容后，这个方法会被调用
-        mRecommendListAdapter.setData(result);
+        mAlbumListAdapter.setData(result);
         mUiLoader.updateStatus(UILoader.UIStatus.SUCCESS);
     }
 
     //接口回调方法
     @Override
     public void onNetWorkError() {
-        Log.d(TAG, "onNetWorkError");
+        LogUtil.d(TAG, "onNetWorkError");
         mUiLoader.updateStatus(UILoader.UIStatus.NETWORK_ERROR);
     }
 
     //接口回调方法
     @Override
     public void onEmpty() {
-        Log.d(TAG, "onEmpty");
+        LogUtil.d(TAG, "onEmpty");
         mUiLoader.updateStatus(UILoader.UIStatus.EMPTY);
     }
 
     //接口回调方法
     @Override
     public void onLoading() {
-        Log.d(TAG, "onLoading");
+        LogUtil.d(TAG, "onLoading");
         mUiLoader.updateStatus(UILoader.UIStatus.LOADING);
     }
 
     @Override
     public void onDestroyView() {
-        Log.d(TAG, "onDestroyView");
+        LogUtil.d(TAG, "onDestroyView");
         super.onDestroyView();
         //取消接口注册,避免内存泄漏,泄露就是无法回收，泄露多了就是内存溢出
         if (mRecommendPresenter != null) {

@@ -14,6 +14,7 @@ public class LoadingView extends AppCompatImageView {
     private int rotateDegree = 0;
     private boolean mNeedRotate = false;
 
+
     public LoadingView(Context context) {
         this(context, null);
     }

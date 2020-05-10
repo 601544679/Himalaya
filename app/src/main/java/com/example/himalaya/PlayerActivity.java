@@ -1,13 +1,17 @@
 package com.example.himalaya;
 
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -15,13 +19,15 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.himalaya.adapters.PlayerTrackPagerAdapter;
 import com.example.himalaya.base.BaseActivity;
-import com.example.himalaya.base.BaseApplication;
 import com.example.himalaya.interfaces.IPlayerCallback;
 import com.example.himalaya.presenters.PlayerPresenter;
+import com.example.himalaya.utils.LogUtil;
+import com.example.himalaya.views.SobPopWindow;
 import com.ximalaya.ting.android.opensdk.model.track.Track;
 import com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +35,6 @@ import java.util.Map;
 import static com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl.PlayMode.PLAY_MODEL_LIST;
 import static com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl.PlayMode.PLAY_MODEL_LIST_LOOP;
 import static com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl.PlayMode.PLAY_MODEL_RANDOM;
-import static com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE;
 import static com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl.PlayMode.PLAY_MODEL_SINGLE_LOOP;
 
 public class PlayerActivity extends BaseActivity implements View.OnClickListener, IPlayerCallback {
@@ -72,11 +77,16 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
 
     }
 
-
+    private ImageView mPlayListBtn;
+    private SobPopWindow mSobPopWindow;
+    private ValueAnimator mEnterBgAnimator;
+    private ValueAnimator mOutBgAnimator;
+    public final int BG_ANIMATOR_DURATION = 500;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LogUtil.d(TAG, "onCreate");
         setContentView(R.layout.activity_player);
         initView();
         mPlayerPresenter = PlayerPresenter.getPlayerPresenter();
@@ -84,9 +94,47 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
         mPlayerPresenter.registerViewCallback(this);
         //界面初始化后才获取数据
         mPlayerPresenter.getPlayList();
-        initEvent();
-        //这里调用播放器可能没准备好导致进入不会播放，因此在PlayerPresenter里的onSoundPrepared() 调用startPlay();
+        /**
+         *   看Log当我们从MainActivity下面播放栏点击跳转到PlayerActivity时，
+         *   为什么获取的数据是对的，代码也只是一个简单的跳转没有传数据，因为之前我们一级一级进入时，从MainActivity
+         *   到DetailActity再到PlayerActivity，进入到PlayerActivity后调用onSoundSwitch方法，获取到了Track和position,
+         *   并作为PlayerPresenter的成员变量赋值，保存起来，上面我们注册接口时，直接读取成员变量的值，同时调用onTrackUpdate方法,
+         *   简单来说前面进入播放界面是已经保存了值，并且进入播放界面后，同步更新了MainActivity的播放栏状态，所以直接Intent就可以进入对应PlayerActivity
+         */
 
+        initEvent();
+        //这里调用startPlay()播放器可能没准备好导致进入不会播放，因此在PlayerPresenter里的onSoundPrepared() 调用startPlay();
+        /* startPlay();*/
+        //设置背景透明度改变时的动画
+        initBgAnimation();
+    }
+
+    private void initBgAnimation() {
+        LogUtil.d(TAG, "initBgAnimation");
+        //设置变化范围
+        mEnterBgAnimator = ValueAnimator.ofFloat(1.0f, 0.7f);
+        mEnterBgAnimator.setDuration(BG_ANIMATOR_DURATION);
+        mEnterBgAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                //上面的变化范围1~0.7，每次变化是会回调这个方法
+                LogUtil.d(TAG, "value -- > " + animation.getAnimatedValue());
+                //打开popupwindow时背景透明
+                updateBgAlpha((Float) animation.getAnimatedValue());
+            }
+        });
+        //退出
+        mOutBgAnimator = ValueAnimator.ofFloat(0.7f, 1.0f);
+        mOutBgAnimator.setDuration(BG_ANIMATOR_DURATION);
+        mOutBgAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                //上面的变化范围1~0.7，每次变化是会回调这个方法
+                LogUtil.d(TAG, "value -- > " + animation.getAnimatedValue());
+                //打开popupwindow时背景透明
+                updateBgAlpha((Float) animation.getAnimatedValue());
+            }
+        });
     }
 
     @Override
@@ -103,7 +151,7 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
      * 开始播放
      */
    /* private void startPlay() {
-        Log.d(TAG, "startPlay");
+        LogUtil.d(TAG, "startPlay");
         if (mPlayerPresenter != null) {
             mPlayerPresenter.play();
         }
@@ -112,7 +160,7 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
     }*/
     @SuppressLint("ClickableViewAccessibility")
     private void initEvent() {
-        Log.d(TAG, "initEvent");
+        LogUtil.d(TAG, "initEvent");
         mControlBtn.setOnClickListener(this);
         mPlayPreBtn.setOnClickListener(this);
         mPlayNextBtn.setOnClickListener(this);
@@ -137,6 +185,7 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
                 mIsUserTouchProgressBar = false;
                 mPlayerPresenter.seekTo(mCurrentProgress);
 
+
             }
         });
         mTrackPagerView.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -147,7 +196,7 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
 
             @Override
             public void onPageSelected(int position) {
-                //页面选中时，切换播放内容
+                //页面选中时，切换播放内容,通过判断mIsUserSlidePager，是用户滑动才执行这个方法，避免点击按钮切换也调用这个方法
                 if (mPlayerPresenter != null && mIsUserSlidePager) {
                     mPlayerPresenter.playByIndex(position);
                 }
@@ -172,10 +221,42 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
             }
         });
         mPlayModeSwitchBtn.setOnClickListener(this);
+        mPlayListBtn.setOnClickListener(this);
+        //popupWindow消失时更改为原来的透明度
+        mSobPopWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                mOutBgAnimator.start();
+            }
+        });
+        //播放列表里的item被点击
+        mSobPopWindow.setPlayListItemClickListener(new SobPopWindow.PlayListItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                mPlayerPresenter.playByIndex(position);
+                LogUtil.d(TAG, "mSobPopWindow.setPlayListItemClickListener   --- " + position);
+            }
+        });
+        //点击popupwindow切换播放模式
+        mSobPopWindow.setPlayListActionListener(new SobPopWindow.PlayListActionListener() {
+            @Override
+            public void onPlayModeClick() {
+                switchPlayMode();
+            }
+
+            @Override
+            public void onOrderClick() {
+                //切换顺序，逆序
+                if (mPlayerPresenter != null) {
+                    mPlayerPresenter.reversePlayList();
+                }
+            }
+        });
     }
 
+
     private void initView() {
-        Log.d(TAG, "initView");
+        LogUtil.d(TAG, "initView");
         mControlBtn = findViewById(R.id.play_or_stop);
         mCurrentPosition = findViewById(R.id.current_position);
         mTotalDuration = findViewById(R.id.track_duration);
@@ -191,13 +272,15 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
         mTrackPagerAdapter = new PlayerTrackPagerAdapter();
         mTrackPagerView.setAdapter(mTrackPagerAdapter);
         mPlayModeSwitchBtn = findViewById(R.id.play_mode_switch_btn);
+        mPlayListBtn = findViewById(R.id.player_list);
+        mSobPopWindow = new SobPopWindow();
     }
 
     @Override
     public void onClick(View v) {
         if (v == mControlBtn) {
             //如果现在是正在播放就暂停，暂停就继续播放
-            if (mPlayerPresenter.isPlay()) {
+            if (mPlayerPresenter.isPlaying()) {
                 mPlayerPresenter.pause();
             } else {
                 mPlayerPresenter.play();
@@ -221,17 +304,37 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
             //PLAY_MODEL_RANDOM 随机播放
 
             //根据当前播放模式，获取下一个播放模式
-            XmPlayListControl.PlayMode playMode = sPlayModeRule.get(mCurrentMode);
-            //修改播放模式
-            if (mPlayerPresenter != null) {
-                mPlayerPresenter.switchPlayMode(playMode);
-                // mCurrentMode = playMode;
-            }
-
+            switchPlayMode();
+        } else if (v == mPlayListBtn) {
+            //以全屏为基准，从底部弹出来
+            mSobPopWindow.showAtLocation(mPlayListBtn, Gravity.BOTTOM, 0, 0);
+            //修改背景透明度时增加动画效果
+            mEnterBgAnimator.start();
         }
     }
 
+    private void switchPlayMode() {
+        LogUtil.d(TAG, "switchPlayMode");
+        XmPlayListControl.PlayMode playMode = sPlayModeRule.get(mCurrentMode);
+        //修改播放模式
+        if (mPlayerPresenter != null) {
+            mPlayerPresenter.switchPlayMode(playMode);
+            // mCurrentMode = playMode;
+        }
+    }
+
+    //修改背景透明度
+    public void updateBgAlpha(float alpha) {
+        LogUtil.d(TAG, "updateBgAlpha");
+        Window window = getWindow();
+        WindowManager.LayoutParams attributes = window.getAttributes();
+        attributes.alpha = alpha;
+        //设置透明度
+        window.setAttributes(attributes);
+    }
+
     private void updatePlayModeBtnImg() {
+        LogUtil.d(TAG, "updatePlayModeBtnImg");
         switch (mCurrentMode) {
             case PLAY_MODEL_LIST:
                 mPlayModeSwitchBtn.setImageResource(R.drawable.selector_play_mode_list_order);
@@ -250,6 +353,7 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onPlayStart() {
+        LogUtil.d(TAG, "onPlayStart");
         //修改UI为暂停样式
         //控件判空，有可能步骤走在控件初始化前
         if (mControlBtn != null) {
@@ -259,6 +363,7 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onPlayPause() {
+        LogUtil.d(TAG, "onPlayPause");
         if (mControlBtn != null) {
             mControlBtn.setImageResource(R.drawable.selector_player_play);
         }
@@ -266,6 +371,7 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onPlayStop() {
+        LogUtil.d(TAG, "onPlayStop");
         if (mControlBtn != null) {
             mControlBtn.setImageResource(R.mipmap.play_press);
         }
@@ -289,21 +395,30 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onListLoaded(List<Track> list) {
-        //Log.d(TAG, "list--> " + list);
+        LogUtil.d(TAG, "onListLoaded");
+        //LogUtil.d(TAG, "list--> " + list);
         //设置数据到适配器
         if (mTrackPagerAdapter != null) {
             mTrackPagerAdapter.setData(list);
+        }
+        if (mSobPopWindow != null) {
+            //数据回来后给到popupwindow
+            mSobPopWindow.setListData(list);
         }
     }
 
     @Override
     public void onPlayModeChange(XmPlayListControl.PlayMode playMode) {
+        LogUtil.d(TAG, "onPlayModeChange");
         mCurrentMode = playMode;
+        //更新popwindow里的播放模式
+        mSobPopWindow.updatePlayMode(playMode);
         updatePlayModeBtnImg();
     }
 
     @Override
     public void onProgressChange(int currentProgress, int total) {
+        LogUtil.d(TAG, "onProgressChange");
         mDurationBar.setMax(total);
         String totalDuration;
         String currentPosition;
@@ -341,9 +456,14 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onTrackUpdate(Track track, int playIndex) {
+        LogUtil.d(TAG, "onTrackUpdate: " + "track: " + track + " index - " + playIndex);
         mIsUserSlidePager = false;
         //第一次进PlayerActivity标题没有设置,因为控件是null
         //此时数据已有，定义一个String，给他赋值title，在initView时设置TextView
+        if (track == null) {
+            LogUtil.d(TAG, "onTrackUpdate --> track null");
+            return;//退出该方法
+        }
         this.mTrackTitleText = track.getTrackTitle();
         if (mTrackTitle != null) {
             mTrackTitle.setText(mTrackTitleText + "");
@@ -353,6 +473,16 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
         if (mTrackPagerView != null) {
             mTrackPagerView.setCurrentItem(playIndex, true);//点击按钮使ViewPager切换
         }
+        //设置播放列表的当前播放位置
+        if (mSobPopWindow != null) {
+            mSobPopWindow.setCurrentPlayPosition(playIndex);
+        }
+    }
 
+    @Override
+    public void updateListOrder(boolean isReverse) {
+        LogUtil.d(TAG, "updateListOrder");
+        //不用！第一次点击不变
+        mSobPopWindow.updateOrderIcon(!isReverse);
     }
 }

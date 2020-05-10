@@ -36,22 +36,33 @@
         android:layout_below="@id/subscription_container"
         android:background="#ebe8e8">
 
-        <ImageView
-            android:id="@+id/detail_play_control"
-            android:layout_width="19dp"
-            android:layout_height="19dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:src="@mipmap/play_black_press" />
+        <LinearLayout
+            android:id="@+id/play_control_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="140dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="12dp"
-            android:layout_toRightOf="@id/detail_play_control"
-            android:text="继续播放"
-            android:textSize="13sp" />
+            <ImageView
+                android:id="@+id/detail_play_control"
+                android:layout_width="19dp"
+                android:layout_height="19dp"
+                android:layout_marginLeft="10dp"
+                android:src="@mipmap/play_black_press" />
+
+            <com.example.himalaya.views.MarqueeTextView
+                android:id="@+id/play_control_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_toRightOf="@id/detail_play_control"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:singleLine="true"
+                android:text="@string/click_play_text"
+                android:textSize="13sp" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
@@ -116,8 +127,7 @@
         android:id="@+id/detail_list_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/player_control_container"
-         />
+        android:layout_below="@id/player_control_container" />
 
 
 </RelativeLayout>
