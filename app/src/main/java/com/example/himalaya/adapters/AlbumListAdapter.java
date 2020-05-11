@@ -44,7 +44,8 @@ public class AlbumListAdapter extends RecyclerView.Adapter<AlbumListAdapter.Inne
                 LogUtil.d(TAG, "holder.itemView onClick--> " + v.getTag());//v.getTag()代替position
             }
         });
-        Glide.with(holder.itemView.getContext()).load(mData.get(position).getCoverUrlMiddle()).into(holder.mAlbumCoverIv);
+        Glide.with(holder.itemView.getContext()).load(mData.get(position).getCoverUrlLarge()).into(holder.mAlbumCoverIv);
+        LogUtil.d(TAG, "pic--> " + mData.get(position).getCoverUrlMiddle());
         holder.mAlbumTitleTv.setText(mData.get(position).getAlbumTitle() + "");
         holder.mAlbumDescriptionTv.setText(mData.get(position).getAlbumIntro() + "");
         holder.mAlbumPlayCountTv.setText(mData.get(position).getPlayCount() + "");
@@ -68,7 +69,6 @@ public class AlbumListAdapter extends RecyclerView.Adapter<AlbumListAdapter.Inne
         }
         notifyDataSetChanged();
     }
-
 
     public class InnerHolder extends RecyclerView.ViewHolder {
         private final ImageView mAlbumCoverIv;

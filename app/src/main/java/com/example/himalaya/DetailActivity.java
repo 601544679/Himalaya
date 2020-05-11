@@ -38,8 +38,10 @@ import com.example.himalaya.base.BaseActivity;
 import com.example.himalaya.base.BaseApplication;
 import com.example.himalaya.interfaces.IAlbumDetailViewCallback;
 import com.example.himalaya.interfaces.IPlayerCallback;
+import com.example.himalaya.interfaces.ISubscriptionCallback;
 import com.example.himalaya.presenters.AlbumDetailPresenter;
 import com.example.himalaya.presenters.PlayerPresenter;
+import com.example.himalaya.presenters.SubscriptionPresenter;
 import com.example.himalaya.utils.ImageBlur;
 import com.example.himalaya.utils.LogUtil;
 import com.example.himalaya.views.RoundRectImageView;
@@ -56,7 +58,7 @@ import net.lucode.hackware.magicindicator.buildins.UIUtil;
 import java.util.List;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class DetailActivity extends BaseActivity implements IAlbumDetailViewCallback, UILoader.OnRetryClickListener, IPlayerCallback {
+public class DetailActivity extends BaseActivity implements IAlbumDetailViewCallback, UILoader.OnRetryClickListener, IPlayerCallback, ISubscriptionCallback {
 
     private static final String TAG = "DetailActivity";
     private ImageView mLargeCover;
@@ -96,24 +98,45 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
     private TwinklingRefreshLayout mRefreshLayout;
     private boolean mIsLoaderMore = false;
     private String mCurrentTrackTitle;
+    private TextView mSubBtn;
+    private SubscriptionPresenter mSubscriptionPresenter;
+    private Album mCurrentAlbum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        LogUtil.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        LogUtil.d(TAG, "onCreate");
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);//占满状态栏
         initView();
+        initPresenter();
+        //设置订阅按钮的状态
+        updateSubState();
+        //记入详情界面后获取播放状态，更改图标，文本
+        updatePlayState(mPlayerPresenter.isPlaying());
+        initEvent();
+    }
+
+    private void updateSubState() {
+        if (mSubscriptionPresenter != null) {
+            boolean isSub = mSubscriptionPresenter.isSub(mCurrentAlbum);
+            mSubBtn.setText(isSub ? R.string.cancel_sub_tips_text : R.string.sub_tips_text);
+        }
+    }
+
+    private void initPresenter() {
         //专辑详情的Presenter
         mAlbumDetailPresenter = AlbumDetailPresenter.getInstance();
         mAlbumDetailPresenter.registerViewCallback(this);
         //播放器的Presenter
         mPlayerPresenter = PlayerPresenter.getPlayerPresenter();
         mPlayerPresenter.registerViewCallback(this);
-        //记入详情界面后获取播放状态，更改图标，文本
-        updatePlayState(mPlayerPresenter.isPlaying());
-        initEvent();
+        //订阅相关的presenter
+        mSubscriptionPresenter = SubscriptionPresenter.getInstance();
+        //进来先获取数据
+        mSubscriptionPresenter.getSubscription();
+        mSubscriptionPresenter.registerViewCallback(this);
     }
 
     private void initEvent() {
@@ -134,6 +157,20 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
 
                 }
 
+            }
+        });
+        mSubBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mSubscriptionPresenter != null) {
+                    boolean isSub = mSubscriptionPresenter.isSub(mCurrentAlbum);
+                    //没有订阅就执行订阅，订阅了执行取消订阅
+                    if (isSub) {
+                        mSubscriptionPresenter.delSubscription(mCurrentAlbum);
+                    } else {
+                        mSubscriptionPresenter.addSubscription(mCurrentAlbum);
+                    }
+                }
             }
         });
     }
@@ -184,7 +221,8 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
         mPlayControlBtn = findViewById(R.id.detail_play_control);
         mPlayControlTips = findViewById(R.id.play_control_tv);
         mPlayControlContainer = findViewById(R.id.play_control_container);
-
+        //订阅相关
+        mSubBtn = findViewById(R.id.detail_sub_btn);
     }
 
     private View createSuccessView(ViewGroup container) {
@@ -292,6 +330,8 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
 
     @Override
     public void onAlbumLoader(Album album) {
+        //用来判定订阅状态
+        this.mCurrentAlbum = album;
         LogUtil.d(TAG, "onAlbumLoader");
         long id = album.getId();
         mCurrentId = id;
@@ -343,9 +383,17 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mAlbumDetailPresenter != null) {
+            mSubscriptionPresenter.unregisterViewCallback(this);
+            mSubscriptionPresenter = null;
+        }
         if (mPlayerPresenter != null) {
             mPlayerPresenter.unregisterViewCallback(this);
             mPlayerPresenter = null;
+        }
+        if (mSubscriptionPresenter != null) {
+            mSubscriptionPresenter.unregisterViewCallback(this);
+            mSubscriptionPresenter = null;
         }
     }
 
@@ -452,5 +500,34 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
     public void updateListOrder(boolean isReverse) {
 
     }
+
+
     //=======================PlayerPresenter方法实现end============================//
+
+    //=======================SubscriptionPresenter方法实现start============================//
+    @Override
+    public void onAddResult(boolean isSuccess) {
+        if (isSuccess) {
+            //成功，修改UI为取消
+            mSubBtn.setText(R.string.cancel_sub_tips_text);
+            String tipsText = isSuccess ? "订阅成功" : "订阅失败";
+            Toast.makeText(this, "" + tipsText, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onDeleteResult(boolean isSuccess) {
+        if (isSuccess) {
+            //成功，修改UI为订阅
+            mSubBtn.setText(R.string.sub_tips_text);
+            String tipsText = isSuccess ? "删除成功" : "删除失败";
+            Toast.makeText(this, "" + tipsText, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onSubscriptionsLoad(List<Album> albums) {
+        //在这个界面不需要处理
+    }
+    //=======================SubscriptionPresenter方法实现end============================//
 }

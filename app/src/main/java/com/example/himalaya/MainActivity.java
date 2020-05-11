@@ -1,10 +1,13 @@
 package com.example.himalaya;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.example.himalaya.adapters.IndicatorAdapter;
 import com.example.himalaya.adapters.MainContentAdapter;
 import com.example.himalaya.base.BaseActivity;
+import com.example.himalaya.data.XimalayaDBHelper;
 import com.example.himalaya.interfaces.IPlayerCallback;
 import com.example.himalaya.presenters.PlayerPresenter;
 import com.example.himalaya.presenters.RecommendPresenter;
@@ -48,16 +52,20 @@ public class MainActivity extends BaseActivity implements IPlayerCallback {
     private ImageView mSearchBtn;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        LogUtil.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //LogUtil.init(this.getPackageName(), false);//初始化,输入包名确定是这个包的Log,true就不显示Log
         initView();
         initEvent();
         initPresenter();
+
+        LogUtil.d(TAG, "onCreate");
     }
+
+
 
     private void initPresenter() {
         LogUtil.d(TAG, "initPresenter");

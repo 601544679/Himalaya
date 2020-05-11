@@ -96,8 +96,6 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
                 //设置数据，然后registerViewCallback里用 detailViewCallback.onAlbumLoader(mTargetAlbum);传递这个数据
                 //在DetailActivity实现DetailViewCallBack接口，实现onAlbumLoader方法，获取到数据，并更新UI
                 Intent intent = new Intent(getContext(), DetailActivity.class);
-                intent.putExtra("position", position);
-
                 startActivity(intent);
 
             }

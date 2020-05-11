@@ -2,34 +2,33 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fff"
-    >
+    android:background="#fff">
 
     <com.example.himalaya.views.FlowTextLayout
         android:id="@+id/recommend_hot_word_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="10dp"
-        android:visibility="visible" />
+        android:layout_margin="10dp" />
 
     <com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout
-        android:id="@+id/tw"
+        android:id="@+id/search_result_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-       >
+        android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/result_list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#fff4f4f4"
+            android:background="#fff"
             android:overScrollMode="never" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/search_recommend_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:overScrollMode="never"
-            android:visibility="gone" />
     </com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/search_recommend_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fff"
+        android:overScrollMode="never"
+        android:visibility="gone" />
+
 </FrameLayout>
