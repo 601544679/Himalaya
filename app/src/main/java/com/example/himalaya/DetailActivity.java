@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +32,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.example.himalaya.adapters.DetailListAdapter;
+import com.example.himalaya.adapters.TrackListAdapter;
 import com.example.himalaya.base.BaseActivity;
 import com.example.himalaya.base.BaseApplication;
 import com.example.himalaya.interfaces.IAlbumDetailViewCallback;
@@ -42,6 +41,7 @@ import com.example.himalaya.interfaces.ISubscriptionCallback;
 import com.example.himalaya.presenters.AlbumDetailPresenter;
 import com.example.himalaya.presenters.PlayerPresenter;
 import com.example.himalaya.presenters.SubscriptionPresenter;
+import com.example.himalaya.utils.Constans;
 import com.example.himalaya.utils.ImageBlur;
 import com.example.himalaya.utils.LogUtil;
 import com.example.himalaya.views.RoundRectImageView;
@@ -86,7 +86,7 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
         }
     };
     private RecyclerView mDetailList;
-    private DetailListAdapter mDetailListAdapter;
+    private TrackListAdapter mTrackListAdapter;
     private FrameLayout mDetailListContainer;
     private UILoader mUiLoader;
     private ImageView mPlayControlBtn;
@@ -232,7 +232,7 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
         mRefreshLayout = detailListView.findViewById(R.id.refresh_layout);
         mDetailList = detailListView.findViewById(R.id.album_detail_list);
         mDetailList.setLayoutManager(new LinearLayoutManager(this));
-        mDetailListAdapter = new DetailListAdapter();
+        mTrackListAdapter = new TrackListAdapter();
         mDetailList.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
@@ -242,8 +242,8 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
                 outRect.right = UIUtil.dip2px(view.getContext(), 5);
             }
         });
-        mDetailList.setAdapter(mDetailListAdapter);
-        mDetailListAdapter.setItemClickListener(new DetailListAdapter.ItemClickListener() {
+        mDetailList.setAdapter(mTrackListAdapter);
+        mTrackListAdapter.setItemClickListener(new TrackListAdapter.ItemClickListener() {
             @Override
             public void ItemClick(List<Track> list, int position) {
                 //跳转到播放器界面
@@ -317,7 +317,7 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
             mUiLoader.updateStatus(UILoader.UIStatus.SUCCESS);
         }
         //更新或设置UI数据
-        mDetailListAdapter.setData(tracks);
+        mTrackListAdapter.setData(tracks);
     }
 
     @Override
@@ -528,6 +528,11 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
     @Override
     public void onSubscriptionsLoad(List<Album> albums) {
         //在这个界面不需要处理
+    }
+
+    @Override
+    public void onSubFull() {
+        Toast.makeText(this, "订阅不能超过" + Constans.MAX_SUB_COUNT, Toast.LENGTH_SHORT).show();
     }
     //=======================SubscriptionPresenter方法实现end============================//
 }

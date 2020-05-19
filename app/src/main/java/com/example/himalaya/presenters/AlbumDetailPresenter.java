@@ -159,6 +159,7 @@ public class AlbumDetailPresenter implements IAlbumDetailPresenter {
 
 
     public void setTargetAlbum(Album targetAlbum) {
+        //获取值，并赋值到当前的全局变量
         LogUtil.d(TAG, " setTargetAlbum ");
         this.mTargetAlbum = targetAlbum;
     }

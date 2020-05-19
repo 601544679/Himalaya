@@ -92,8 +92,8 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
         mPlayerPresenter = PlayerPresenter.getPlayerPresenter();
         //注册
         mPlayerPresenter.registerViewCallback(this);
-        //界面初始化后才获取数据
-        mPlayerPresenter.getPlayList();
+       /* //界面初始化后才获取数据
+        mPlayerPresenter.getPlayList();*/ //直接在注册接口里用 getPlayList();获取数据
         /**
          *   看Log当我们从MainActivity下面播放栏点击跳转到PlayerActivity时，
          *   为什么获取的数据是对的，代码也只是一个简单的跳转没有传数据，因为之前我们一级一级进入时，从MainActivity

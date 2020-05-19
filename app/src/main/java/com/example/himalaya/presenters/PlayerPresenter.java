@@ -49,8 +49,8 @@ public class PlayerPresenter implements IPlayerPresenter, IXmAdsStatusListener, 
     //sp key and name
     public final static String PLAY_MODE_SP_NAME = "PlayMode";
     public final static String PLAY_MODE_SP_KEY = "currentPlayMode";
-    private int mCurrentProgressPosition=0;
-    private int mProgressDuration=0;
+    private int mCurrentProgressPosition = 0;
+    private int mProgressDuration = 0;
 
     private PlayerPresenter() {
         LogUtil.d(TAG, "private PlayerPresenter()");
@@ -276,22 +276,24 @@ public class PlayerPresenter implements IPlayerPresenter, IXmAdsStatusListener, 
 
     @Override
     public void registerViewCallback(IPlayerCallback iPlayerCallback) {
+        if (!mIPlayerCallbacks.contains(iPlayerCallback)) {
+            mIPlayerCallbacks.add(iPlayerCallback);
+        }
         LogUtil.d(TAG, "registerViewCallback");
+        //更新之前先让ViewPager有数据
+        getPlayList();
         //解决第一次进PlayerActivity标题没有设置
         LogUtil.d(TAG, "registerViewCallback  " +
                 "iPlayerCallback.onTrackUpdate---" + "mCurrentTrack " + mCurrentTrack
                 + "  --- " + mCurrentIndex);
         iPlayerCallback.onTrackUpdate(mCurrentTrack, mCurrentIndex);
-        iPlayerCallback.onProgressChange(mCurrentProgressPosition,mProgressDuration);
+        iPlayerCallback.onProgressChange(mCurrentProgressPosition, mProgressDuration);
         //MainActivity点击播放后，改变PlayerActivity的播放状态
         handlePlayState(iPlayerCallback);
         //sp里面取
         int modeIndex = mPlayModeSp.getInt(PLAY_MODE_SP_KEY, PLAY_MODEL_LIST_INT);
         mCurrentPlayMode = getModeByInt(modeIndex);
         iPlayerCallback.onPlayModeChange(mCurrentPlayMode);
-        if (!mIPlayerCallbacks.contains(iPlayerCallback)) {
-            mIPlayerCallbacks.add(iPlayerCallback);
-        }
     }
 
     private void handlePlayState(IPlayerCallback iPlayerCallback) {
@@ -416,7 +418,9 @@ public class PlayerPresenter implements IPlayerPresenter, IXmAdsStatusListener, 
             LogUtil.d(TAG, " lastModel 。kind> " + lastModel.getKind());
 
         }
-        LogUtil.d(TAG, " curModel 。kind> " + curModel.getKind());
+        if (curModel != null) {
+            LogUtil.d(TAG, " curModel 。kind> " + curModel.getKind());
+        }
         //curModel,当前播放内容,通过getKind()获取数据类型
         //track表示是track类型
         //第一种写法,不推荐,如果后台把字段"track"改为其他字段，直接GG
@@ -428,6 +432,10 @@ public class PlayerPresenter implements IPlayerPresenter, IXmAdsStatusListener, 
         if (curModel instanceof Track) {
             Track currentTrack = (Track) curModel;
             mCurrentTrack = currentTrack;
+            //保存播放记录,历史记录
+            HistoryPresenter historyPresenter = HistoryPresenter.getHistoryPresenter();
+            historyPresenter.addHistory(currentTrack);
+            //更新UI
             for (IPlayerCallback iPlayerCallback : mIPlayerCallbacks) {
                 iPlayerCallback.onTrackUpdate(mCurrentTrack, mCurrentIndex);
             }
@@ -458,8 +466,8 @@ public class PlayerPresenter implements IPlayerPresenter, IXmAdsStatusListener, 
     public void onPlayProgress(int currPos, int duration) {
         //播放进度回调,current当前进度,duration总时长
         //这2个值要保存，因为从MainActivity播放栏跳转到PlayerActivity时，没有保存值，时长是00:00
-        this.mCurrentProgressPosition=currPos;
-        this.mProgressDuration=duration;
+        this.mCurrentProgressPosition = currPos;
+        this.mProgressDuration = duration;
         for (IPlayerCallback iPlayerCallback : mIPlayerCallbacks) {
             iPlayerCallback.onProgressChange(currPos, duration);
         }

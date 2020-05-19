@@ -50,8 +50,8 @@ public class SubscriptionDao implements ISubDao {
             values.put(Constans.SUB_DESCRIPTION, album.getAlbumIntro());
             values.put(Constans.SUB_PLAY_COUNT, album.getPlayCount());
             values.put(Constans.SUB_TRACKS_COUNT, album.getIncludeTrackCount());
-            values.put(Constans.SUB_AUTHORNAME, album.getAnnouncer().getNickname());
-            values.put(Constans.SUB_ALBUMID, album.getId());
+            values.put(Constans.SUB_AUTHOR_NAME, album.getAnnouncer().getNickname());
+            values.put(Constans.SUB_ALBUM_ID, album.getId());
             //插入数据
             db.insert(Constans.SUB_TB_NAME, null, values);
             db.setTransactionSuccessful();
@@ -90,7 +90,7 @@ public class SubscriptionDao implements ISubDao {
             //开启事务
             db.beginTransaction();
             //删除数据
-            int delete = db.delete(Constans.SUB_TB_NAME, Constans.SUB_ALBUMID + "=?", new String[]{album.getId() + ""});
+            int delete = db.delete(Constans.SUB_TB_NAME, Constans.SUB_ALBUM_ID + "=?", new String[]{album.getId() + ""});
             LogUtil.d(TAG, "delete: " + delete);
             db.setTransactionSuccessful();
             isDeleteSuccess = true;
@@ -139,12 +139,12 @@ public class SubscriptionDao implements ISubDao {
                 int playCount = query.getInt(query.getColumnIndex(Constans.SUB_PLAY_COUNT));
                 album.setPlayCount(playCount);
                 //作者
-                String authorName = query.getString(query.getColumnIndex(Constans.SUB_AUTHORNAME));
+                String authorName = query.getString(query.getColumnIndex(Constans.SUB_AUTHOR_NAME));
                 Announcer announcer = new Announcer();
                 announcer.setNickname(authorName);
                 album.setAnnouncer(announcer);
                 //专辑ID
-                int albumId = query.getInt(query.getColumnIndex(Constans.SUB_ALBUMID));
+                int albumId = query.getInt(query.getColumnIndex(Constans.SUB_ALBUM_ID));
                 album.setId(albumId);
                 result.add(album);
             }

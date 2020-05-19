@@ -48,4 +48,5 @@ public class BaseApplication extends Application {
         LogUtil.d(TAG, "getHandler");
         return sHandler;
     }
+
 }

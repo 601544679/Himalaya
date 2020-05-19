@@ -52,5 +52,6 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha03'
     implementation 'com.lcodecorex:tkrefreshlayout:1.0.7'
     implementation "io.reactivex.rxjava3:rxjava:3.0.3"
-
+    implementation 'com.jakewharton:butterknife:10.2.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
 }

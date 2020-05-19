@@ -5,6 +5,7 @@ import com.example.himalaya.data.ISubDaoCallback;
 import com.example.himalaya.data.SubscriptionDao;
 import com.example.himalaya.interfaces.ISubscriptionCallback;
 import com.example.himalaya.interfaces.ISubscriptionPresenter;
+import com.example.himalaya.utils.Constans;
 import com.example.himalaya.utils.LogUtil;
 import com.ximalaya.ting.android.opensdk.model.album.Album;
 
@@ -63,6 +64,14 @@ public class SubscriptionPresenter implements ISubscriptionPresenter, ISubDaoCal
     @Override
     public void addSubscription(final Album album) {
         LogUtil.d(TAG, " addSubscription");
+        //判断当前订阅数量不能超过100个
+        if (mData.size() >= Constans.MAX_SUB_COUNT) {
+            //提示
+            for (ISubscriptionCallback callback : mCallbacks) {
+                callback.onSubFull();
+            }
+            return;
+        }
         Observable.create(new ObservableOnSubscribe<Object>() {
             @Override
             public void subscribe(@NonNull ObservableEmitter<Object> emitter) throws Throwable {

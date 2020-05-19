@@ -26,14 +26,20 @@ public class XimalayaDBHelper extends SQLiteOpenHelper {
                 Constans.SUB_DESCRIPTION + " varchar," +
                 Constans.SUB_PLAY_COUNT + " integer," +
                 Constans.SUB_TRACKS_COUNT + " integer," +
-                Constans.SUB_AUTHORNAME + " varchar ," +
-                Constans.SUB_ALBUMID + " integer)";
+                Constans.SUB_AUTHOR_NAME + " varchar ," +
+                Constans.SUB_ALBUM_ID + " integer)";
         db.execSQL(subTbSql);
-       /*
-        for (int i = 0; i < 1000; i++) {
-            db.insert(Constans.SUB_TB_NAME, null, values);
-            //db.execSQL(aa);
-        }*/
+        //创建历史记录表
+        String histoTbSql = "create table " + Constans.HISTORY_TB_NAME + " (" +
+                Constans.HISTORY_ID + " integer primary key autoincrement , " +
+                Constans.HISTORY_TRACK_ID + " integer," +
+                Constans.HISTORY_TITLE + " varchar ," +
+                Constans.HISTORY_PLAY_COUNT + " integer," +
+                Constans.HISTORY_DURATION + " integer," +
+                Constans.HISTORY_COVER + " varchar," +
+                Constans.HISTORY_AUTHOR + " varchar," +
+                Constans.HISTORY_UPDATE_TIME + " integer)";
+        db.execSQL(histoTbSql);
     }
 
     @Override

@@ -16,13 +16,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.InnerHolder> {
-    private static final String TAG = "DetailListAdapter";
+public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.InnerHolder> {
+    private static final String TAG = "TrackListAdapter";
     private List<Track> mDetailData = new ArrayList<>();
     //格式化时间long转时间
     private SimpleDateFormat mUpdateDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat mDurationFormat = new SimpleDateFormat("mm:ss");
     private ItemClickListener mItemClickListener = null;
+    private ItemLongClickListener mItemLongClickListener = null;
 
     @NonNull
     @Override
@@ -44,7 +45,7 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
         TextView updateDateTv = itemView.findViewById(R.id.detail_item_update_time);
         //设置数据
         Track track = mDetailData.get(position);
-        orderTv.setText((track.getOrderNum() + 1) + "");
+        orderTv.setText((position + 1) + "");
         titleTv.setText(track.getTrackTitle() + "");
         playCountTv.setText(track.getPlayCount() + "");
         String duration = mDurationFormat.format(track.getDuration() * 1000);//返回的数据是秒，因此我们操作时*1000加上毫秒
@@ -58,6 +59,15 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
                     //参数需要播放列表和位置
                     mItemClickListener.ItemClick(mDetailData, position);
                 }
+            }
+        });
+        itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mItemLongClickListener != null) {
+                    mItemLongClickListener.ItemLongClick(track);
+                }
+                return true;
             }
         });
     }
@@ -91,5 +101,13 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
 
     public interface ItemClickListener {
         void ItemClick(List<Track> list, int position);
+    }
+
+    public void setItemLongClickListener(ItemLongClickListener listener) {
+        this.mItemLongClickListener = listener;
+    }
+
+    public interface ItemLongClickListener {
+        void ItemLongClick(Track track);
     }
 }

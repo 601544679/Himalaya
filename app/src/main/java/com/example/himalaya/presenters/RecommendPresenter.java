@@ -15,6 +15,7 @@ public class RecommendPresenter implements IRecommendPresenter {
     private List<IRecommendViewCallback> mCallbacks = new ArrayList<>();
     private static final String TAG = "RecommendPresenter";
     private List<Album> mCurrentRecommend = new ArrayList<>();
+    private List<Album> mRecommendList;
 
     /**
      * 单例模式
@@ -84,6 +85,12 @@ public class RecommendPresenter implements IRecommendPresenter {
     //获取推荐内容,猜你喜欢
     private void getRecommend() {
         LogUtil.d(TAG, "getRecommend");
+        //如果内容不为空直接用
+        if (mRecommendList != null && mRecommendList.size() > 0) {
+            LogUtil.d(TAG, "mRecommendList -- > from memory");
+            handlerRecommendResult(mRecommendList);
+            return;//结束当前方法
+        }
         //封装参数
         updateLoading();
         XimalayaApi ximalayaApi = XimalayaApi.getXimalayaApi();
@@ -91,9 +98,10 @@ public class RecommendPresenter implements IRecommendPresenter {
             @Override
             public void onSuccess(GussLikeAlbumList gussLikeAlbumList) {
                 if (gussLikeAlbumList != null) {
-                    List<Album> albumList = gussLikeAlbumList.getAlbumList();
+                    LogUtil.d(TAG, "mRecommendList -- > from network");
+                    mRecommendList = gussLikeAlbumList.getAlbumList();
                     //获取数据，通知UI更新
-                    handlerRecommendResult(albumList);
+                    handlerRecommendResult(mRecommendList);
                 }
             }
 

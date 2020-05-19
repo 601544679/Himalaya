@@ -89,7 +89,7 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
                 outRect.right = UIUtil.dip2px(view.getContext(), 5);
             }
         });
-        mAlbumListAdapter.setonRecommendItemClickListener(new AlbumListAdapter.onRecommendItemClickListener() {
+        mAlbumListAdapter.setAlbumListItemClickListener(new AlbumListAdapter.onAlbumListItemClickListener() {
             @Override
             public void onItemClick(int position, Album album) {
                 AlbumDetailPresenter.getInstance().setTargetAlbum(album);

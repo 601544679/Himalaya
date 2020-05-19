@@ -68,7 +68,8 @@ public abstract class UILoader extends FrameLayout {
 
     private void switchUIByCurrentStatus() {
         LogUtil.d(TAG, "switchUIByCurrentStatus");
-        //加载中
+        // 准备好4个界面根据mCurrentStatus判断显示那个
+        // 加载中
         if (mLoadingView == null) {
             mLoadingView = getLoadingView();
             addView(mLoadingView);
@@ -102,12 +103,13 @@ public abstract class UILoader extends FrameLayout {
         mEmptyView.setVisibility(mCurrentStatus == UIStatus.EMPTY ? VISIBLE : GONE);
     }
 
-    private View getEmptyView() {
+    //protected可以复写，改写
+    protected View getEmptyView() {
         LogUtil.d(TAG, "getEmptyView");
         return LayoutInflater.from(getContext()).inflate(R.layout.fragment_empty_view, this, false);
     }
 
-    private View getNetWorkErrorView() {
+    protected View getNetWorkErrorView() {
         LogUtil.d(TAG, "getNetWorkErrorView");
         View networkError = LayoutInflater.from(getContext()).inflate(R.layout.fragment_error_view, this, false);
         networkError.findViewById(R.id.network_error_icon).setOnClickListener(new OnClickListener() {
@@ -124,7 +126,7 @@ public abstract class UILoader extends FrameLayout {
 
     protected abstract View getSuccessView(ViewGroup container);
 
-    private View getLoadingView() {
+    protected View getLoadingView() {
         LogUtil.d(TAG, "getLoadingView");
         return LayoutInflater.from(getContext()).inflate(R.layout.fragment_loading_view, this, false);
     }

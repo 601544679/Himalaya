@@ -52,7 +52,6 @@ public class MainActivity extends BaseActivity implements IPlayerCallback {
     private ImageView mSearchBtn;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,10 +60,8 @@ public class MainActivity extends BaseActivity implements IPlayerCallback {
         initView();
         initEvent();
         initPresenter();
-
         LogUtil.d(TAG, "onCreate");
     }
-
 
 
     private void initPresenter() {
@@ -78,7 +75,7 @@ public class MainActivity extends BaseActivity implements IPlayerCallback {
         mIndicatorAdapter.setOnIndicatorTabClickListener(new IndicatorAdapter.OnIndicatorTabClickListener() {
             @Override
             public void onTabClick(int position) {
-                mContentPager.setCurrentItem(position);
+                mContentPager.setCurrentItem(position, false);//false取消动画
             }
         });
         mPlayControl.setOnClickListener(new View.OnClickListener() {

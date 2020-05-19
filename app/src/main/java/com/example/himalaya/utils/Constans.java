@@ -20,6 +20,20 @@ public class Constans {
     public static final String SUB_DESCRIPTION = "description";
     public static final String SUB_PLAY_COUNT = "playCount";
     public static final String SUB_TRACKS_COUNT = "tracksCount";
-    public static final String SUB_AUTHORNAME = "authorName";
-    public static final String SUB_ALBUMID = "albumId";
+    public static final String SUB_AUTHOR_NAME = "authorName";
+    public static final String SUB_ALBUM_ID = "albumId";
+    //订阅最多个数
+    public static final int MAX_SUB_COUNT = 5;
+    //历史记录表的字段
+    public static final String HISTORY_TB_NAME = "tb_history";
+    public static final String HISTORY_ID = "_id";
+    public static final String HISTORY_TRACK_ID = "historyTrackId";
+    public static final String HISTORY_TITLE = "historyTitle";
+    public static final String HISTORY_PLAY_COUNT = "historyPlayCount";
+    public static final String HISTORY_DURATION = "historyDuration";
+    public static final String HISTORY_UPDATE_TIME = "historyUpdateTime";
+    public static final String HISTORY_COVER = "historyCover";
+    public static final String HISTORY_AUTHOR = "historyAuthor";
+    //最大历史记录
+    public static final int MAX_HISTORY_COUNT = 10;
 }

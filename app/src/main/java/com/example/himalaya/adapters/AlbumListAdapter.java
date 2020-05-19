@@ -20,7 +20,8 @@ import java.util.List;
 public class AlbumListAdapter extends RecyclerView.Adapter<AlbumListAdapter.InnerHolder> {
     private List<Album> mData = new ArrayList<>();
     private static final String TAG = "AlbumListAdapter";
-    private onRecommendItemClickListener monRecommendItemClickListener = null;
+    private onAlbumListItemClickListener mAlbumListItemClickListener = null;
+    private onAlbumListItemLongClickListener mAlbumListItemLongClickListener = null;
 
     @NonNull
     @Override
@@ -38,10 +39,20 @@ public class AlbumListAdapter extends RecyclerView.Adapter<AlbumListAdapter.Inne
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (monRecommendItemClickListener != null) {
-                    monRecommendItemClickListener.onItemClick(position, mData.get(position));
+                if (mAlbumListItemClickListener != null) {
+                    mAlbumListItemClickListener.onItemClick(position, mData.get(position));
                 }
                 LogUtil.d(TAG, "holder.itemView onClick--> " + v.getTag());//v.getTag()代替position
+            }
+        });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mAlbumListItemLongClickListener != null) {
+                    mAlbumListItemLongClickListener.onItemLongClick(mData.get(position));
+                }
+                //true表示消费掉该事件,处理了
+                return true;
             }
         });
         Glide.with(holder.itemView.getContext()).load(mData.get(position).getCoverUrlLarge()).into(holder.mAlbumCoverIv);
@@ -89,13 +100,24 @@ public class AlbumListAdapter extends RecyclerView.Adapter<AlbumListAdapter.Inne
         }
     }
 
-    public void setonRecommendItemClickListener(onRecommendItemClickListener listener) {
+    public void setAlbumListItemClickListener(onAlbumListItemClickListener listener) {
         LogUtil.d(TAG, "setonRecommendItemClickListener");
-        this.monRecommendItemClickListener = listener;
+        this.mAlbumListItemClickListener = listener;
     }
 
-    public interface onRecommendItemClickListener {
+    public interface onAlbumListItemClickListener {
         void onItemClick(int position, Album album);
     }
 
+    public void setonAlbumListItemLongClickListener(onAlbumListItemLongClickListener listener) {
+        LogUtil.d(TAG, "setonRecommendItemClickListener");
+        this.mAlbumListItemLongClickListener = listener;
+    }
+
+    /**
+     * 长按接口
+     */
+    public interface onAlbumListItemLongClickListener {
+        void onItemLongClick(Album album);
+    }
 }

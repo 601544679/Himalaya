@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -25,11 +24,9 @@ import android.widget.Toast;
 import com.example.himalaya.adapters.AlbumListAdapter;
 import com.example.himalaya.adapters.SearchRecommendAdapter;
 import com.example.himalaya.base.BaseActivity;
-import com.example.himalaya.base.BaseApplication;
 import com.example.himalaya.interfaces.ISearchCallback;
 import com.example.himalaya.presenters.AlbumDetailPresenter;
 import com.example.himalaya.presenters.SearchPresenter;
-import com.example.himalaya.utils.Constans;
 import com.example.himalaya.utils.LogUtil;
 import com.example.himalaya.views.FlowTextLayout;
 import com.example.himalaya.views.UILoader;
@@ -178,7 +175,7 @@ public class SearchActivity extends BaseActivity implements ISearchCallback {
                 }
             }
         });
-        mAlbumListAdapter.setonRecommendItemClickListener(new AlbumListAdapter.onRecommendItemClickListener() {
+        mAlbumListAdapter.setAlbumListItemClickListener(new AlbumListAdapter.onAlbumListItemClickListener() {
             @Override
             public void onItemClick(int position, Album album) {
                 AlbumDetailPresenter.getInstance().setTargetAlbum(album);
@@ -246,6 +243,15 @@ public class SearchActivity extends BaseActivity implements ISearchCallback {
                 @Override
                 protected View getSuccessView(ViewGroup container) {
                     return createSuccessView();
+                }
+
+                @Override
+                protected View getEmptyView() {
+                    //创建一个新的UI
+                    View emptyView = LayoutInflater.from(getContext()).inflate(R.layout.fragment_empty_view, this, false);
+                    TextView tipsView = emptyView.findViewById(R.id.empty_view_tips_tv);
+                    tipsView.setText(R.string.search_empty_content_tips_text);
+                    return emptyView;
                 }
             };
             if (mUILoader.getParent() instanceof ViewGroup) {
